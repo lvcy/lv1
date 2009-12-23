@@ -1,0 +1,7 @@
+<h1>Welcome to Livelocity !</h1>
+<?php 
+$dbc = Lv_Util_DbCaller::getInstance();
+print_r($dbc->getUserRoles(array('userId' => '1')));
+
+
+?>
