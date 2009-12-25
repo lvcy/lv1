@@ -1,7 +1,16 @@
 <h1>Welcome to Livelocity !</h1>
 <?php 
 $dbc = Lv_Util_DbCaller::getInstance();
-print_r($dbc->getUserRoles(array('userId' => '1')));
+print_r($dbc->call(array(
+						'Sp' 	=> 'usp_ur_get_use_roles',
+						'_name' => 'Tariq',
+						'_id' 	=> '1',
+						'id' 	=> '1',
+						'nationality' 	=> 'KSA',
+						'name' 	=> 'n1',
+						'_type' => 'user')));
+
+//print_r($dbc->test());
 
 
 ?>

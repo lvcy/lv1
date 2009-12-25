@@ -4,6 +4,7 @@ class Lv_Util_DbCaller
 	protected static $_instance = null;
 	protected $_db = null;
 	protected $_stmt = null;
+	protected $_errorCode = 0;
 
 	protected function __construct()
 	{}
@@ -15,7 +16,7 @@ class Lv_Util_DbCaller
 	{
 		$this->_db->closeConnection();
 	}
-	
+
 	public static function getInstance()
 	{
 		if (null === self::$_instance)
@@ -33,7 +34,6 @@ class Lv_Util_DbCaller
 	{
 		$config = new Zend_Config_Ini(APPLICATION_PATH.'/configs/application.ini', 'production');
 		$this->_db = Zend_Db::factory($config->resources->db);
-		$this->_db->setFetchMode(Zend_Db::FETCH_NUM);
 		$this->_db->query('SET character_set_client=utf8');
 		$this->_db->query('SET character_set_connection=utf8');
 		$this->_db->query('SET character_set_database=utf8');
@@ -47,28 +47,53 @@ class Lv_Util_DbCaller
 		return true;
 		else return false;
 	}
-	
+
 	public function beginTransaction()
 	{
 		$this->_db->beginTransaction();
+		$this->_errorCode = 0;
 	}
-	
+
 	public function commitTransaction()
 	{
 		$this->_db->commit();
+		$this->_errorCode = 0;
 	}
-	
+
 	public function rollBackTransaction()
 	{
 		$this->_db->rollBack();
-		
+		$this->_errorCode = 0;
 	}
 
-	public function getUserRoles($parameters)
+	public function test()
 	{
-		if (strlen($parameters[userId]) > 0)
+		$this->_stmt = $this->_db->prepare('call usp_ur_get_user_roles("1")');
+		$this->_stmt->execute();
+		$result = $this->_stmt->fetchAll();
+		$this->_stmt->closeCursor();
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
 		{
-			$this->_stmt = $this->_db->prepare('CALL usp_ur_get_user_roles(:userId)');
+			$this->_db->closeConnection();
+		}
+		return $result;
+	}
+
+	public function call($parameters)
+	{
+		if (strlen($parameters[Sp]) > 0)
+		{
+			$sqlString = "CALL $parameters[Sp](";
+			unset($parameters[Sp]);
+			ksort($parameters);
+			foreach ($parameters as $item)
+			{
+				$sqlString .= "'$item'" . ', ';
+			}
+			$sqlString = substr($sqlString, 0, strrpos($sqlString, ','));
+			$sqlString .= ')';
+			echo $sqlString;
+/*			$this->_stmt = $this->_db->prepare('CALL usp_ur_get_user_roles(:userId)');
 			$this->_stmt->bindParam('userId', $parameters[userId]);
 			$this->_stmt->execute();
 			$result = $this->_stmt->fetchAll();
@@ -77,8 +102,9 @@ class Lv_Util_DbCaller
 			{
 				$this->_db->closeConnection();
 			}
-			return $result;
+			return $result;*/
 		}
 	}
+
 
 }
