@@ -3,9 +3,6 @@ class Model_User extends Lv_Util_OneObject
 {
 	protected $_username;
 	protected $_userType;
-	
-
-
 
 	public static function IsUserNameAvailable($username)
 	{
@@ -68,12 +65,14 @@ class Model_User extends Lv_Util_OneObject
 												  'SP'			 => 'editUser'));
 	}
 
-	public function addProfileItem($userProfileItem)
+	public function addUserProfileItem($parameters)
 	{
-		$result = Model_Util_SpCaller::call(array('userId' 	 	 => $userProfileItem[userId],
-												  'key' 		 => $userProfileItem[key],
-		  										  'value' 		 => $userProfileItem[value],
-												  'SP'			 => 'addProfileItem'));
+		$dbParams[Sp] = $this->getSpName();
+		$dbParams[_id] = $parameters[_id];
+		$dbParams[key] = $parameters[key];
+		$dbParams[value] = $parameters[value];
+		$this->_dbc->call($dbParams);
+		//print_r($dbParams); 
 	}
 
 	public function editProfileItem($userProfileItem)

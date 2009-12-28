@@ -37,6 +37,9 @@ class Lv_Util_OneObject
 		$class = substr(get_class($this), strrpos(get_class($this), '_') + 1);
 		$backtrace = debug_backtrace();
 		$function = $backtrace[1]['function'];
+		if(substr($function,-4) == 'Item')
+		return strtolower('usp_'.$class.'_profile'.'_'.$function);
+		else
 		return strtolower('usp_'.$class.'_'.$function);
 	}
 
@@ -79,9 +82,21 @@ class Lv_Util_OneObject
 				$profileParams[$key] = $value;
 			}
 			$downcastedObject = self::cast($this, 'Model_'.$class);
+			//$this->_dbc->beginTransaction();
+
+
 			// 1.2	add coreParams
 			eval('$this->_id = $downcastedObject->add'.$class.'($coreParams);');
 			// 1.3	add profileParams
+
+			foreach ($profileParams as $key => $value)
+			{
+				$partialParam = array('_id' 	=> $this->_id,
+									  'key'		=> $key,
+									  'value' 	=> $value);
+				eval('$downcastedObject->add'.$class.'ProfileItem($partialParam);');
+			}
+			//$this->_dbc->commitTransaction();
 		}
 
 		// 2. else if > 0 then (existing object):
