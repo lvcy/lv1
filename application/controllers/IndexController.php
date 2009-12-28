@@ -10,9 +10,6 @@ class IndexController extends Zend_Controller_Action
 
     public function indexAction()
     {
-	    $this->view->user = Model_Db_User::GetUserProfile(1);
-
-
-    	
+ 	
     }
 }

@@ -4,7 +4,6 @@ class Lv_Util_DbCaller
 	protected static $_instance = null;
 	protected $_db = null;
 	protected $_stmt = null;
-	protected $_errorCode = 0;
 
 	protected function __construct()
 	{}
@@ -51,32 +50,16 @@ class Lv_Util_DbCaller
 	public function beginTransaction()
 	{
 		$this->_db->beginTransaction();
-		$this->_errorCode = 0;
 	}
 
 	public function commitTransaction()
 	{
 		$this->_db->commit();
-		$this->_errorCode = 0;
 	}
 
 	public function rollBackTransaction()
 	{
 		$this->_db->rollBack();
-		$this->_errorCode = 0;
-	}
-
-	public function test()
-	{
-		$this->_stmt = $this->_db->prepare('call usp_ur_get_user_roles("1")');
-		$this->_stmt->execute();
-		$result = $this->_stmt->fetchAll();
-		$this->_stmt->closeCursor();
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-		{
-			$this->_db->closeConnection();
-		}
-		return $result;
 	}
 
 	public function call($parameters)
@@ -92,9 +75,7 @@ class Lv_Util_DbCaller
 			}
 			$sqlString = substr($sqlString, 0, strrpos($sqlString, ','));
 			$sqlString .= ')';
-			echo $sqlString;
-/*			$this->_stmt = $this->_db->prepare('CALL usp_ur_get_user_roles(:userId)');
-			$this->_stmt->bindParam('userId', $parameters[userId]);
+			$this->_stmt = $this->_db->prepare($sqlString);
 			$this->_stmt->execute();
 			$result = $this->_stmt->fetchAll();
 			$this->_stmt->closeCursor();
@@ -102,9 +83,7 @@ class Lv_Util_DbCaller
 			{
 				$this->_db->closeConnection();
 			}
-			return $result;*/
+			return $result;
 		}
 	}
-
-
 }

@@ -1,16 +1,12 @@
 <h1>Welcome to Livelocity !</h1>
 <?php 
-$dbc = Lv_Util_DbCaller::getInstance();
-print_r($dbc->call(array(
-						'Sp' 	=> 'usp_ur_get_use_roles',
-						'_name' => 'Tariq',
-						'_id' 	=> '1',
-						'id' 	=> '1',
-						'nationality' 	=> 'KSA',
-						'name' 	=> 'n1',
-						'_type' => 'user')));
+$o = new Model_User();
+$o->_username = 'tariq000072';
+$o->_userpassword = '111';
+$o->age = 18;
 
-//print_r($dbc->test());
+$o->save();
+print_r($o);
 
 
 ?>
