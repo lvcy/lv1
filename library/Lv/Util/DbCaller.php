@@ -74,9 +74,7 @@ class Lv_Util_DbCaller
 				$sqlString .= "'$item'" . ', ';
 			}
 			$sqlString = substr($sqlString, 0, strrpos($sqlString, ',')) . ')';
-			echo $sqlString . '<br />';
 			$this->_stmt = $this->_db->prepare($sqlString);
-			echo $sqlString.'<br />';
 			$this->_stmt->execute();
 			$result = $this->_stmt->fetchAll();
 			$this->_stmt->closeCursor();

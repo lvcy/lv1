@@ -13,6 +13,23 @@ class Lv_Util_OneObject
 				$this->$key = $value;
 			}
 		}
+		else if(is_int($parameters))
+		{
+			$class = substr(get_class($this), strrpos(get_class($this), '_') + 1);
+			$dbParams[Sp] = strtolower('usp_'.$class.'_getprofile');
+			$dbParams[_id] = $parameters;
+			$this->_dbc = Lv_Util_DbCaller::getInstance();
+			$result = $this->_dbc->call($dbParams);
+				
+			$this->_id = (int)$parameters;
+			foreach ($result as $item)
+			{
+				foreach ($item as $key => $value)
+				{
+					$this->$key = $value;
+				}
+			}
+		}
 		else
 		$this->_id = -1;
 	}
@@ -50,19 +67,20 @@ class Lv_Util_OneObject
 	 * 1.2	add coreParams
 	 * 1.3	add profileParams
 	 * 2. else if > 0 then (existing object):
-	 * 2.1	get newCoreParams
-	 * 2.1.1	update object newCoreParams
-	 * 2.2	get oldProfileParams
-	 * 2.3	get newProfileParams
-	 * 2.4	get diffProfileParams
-	 * 2.5	exclude diffProfileParams from newProfileParams
-	 * 2.6	update newProfileParams
-	 * 2.7	add diffProfileParams
+	 * 2.1	get CoreParams
+	 * 2.2	get prevProfileParams
+	 * 2.3	get currProfileParams
+	 * 2.4	get newProfileParams
+	 * 2.5	exclude newProfileParams from currProfileParams
+	 * 2.6	update CoreParams
+	 * 2.7	update currProfileParams
+	 * 2.8	add newProfileParams
 	 */
 	public function save()
 	{
 		$this->_dbc = Lv_Util_DbCaller::getInstance();
 		$class = substr(get_class($this), strrpos(get_class($this), '_') + 1);
+		$downcastedObject = self::cast($this, 'Model_'.$class);
 
 		// 1. check $_id, $_id < 0 (new object):
 		if($this->_id < 0)
@@ -81,14 +99,12 @@ class Lv_Util_OneObject
 				// 1.1.2	getting profileParams
 				$profileParams[$key] = $value;
 			}
-			$downcastedObject = self::cast($this, 'Model_'.$class);
+			//TODO: inclose in transactio
 			//$this->_dbc->beginTransaction();
-
 
 			// 1.2	add coreParams
 			eval('$this->_id = $downcastedObject->add'.$class.'($coreParams);');
 			// 1.3	add profileParams
-
 			foreach ($profileParams as $key => $value)
 			{
 				$partialParam = array('_id' 	=> $this->_id,
@@ -98,16 +114,36 @@ class Lv_Util_OneObject
 			}
 			//$this->_dbc->commitTransaction();
 		}
-
 		// 2. else if > 0 then (existing object):
-		// 2.1	get newCoreParams
-		// 2.1.1	update object newCoreParams
-		// 2.2	get oldProfileParams
-		// 2.3	get newProfileParams
-		// 2.4	get diffProfileParams
-		// 2.5	exclude diffProfileParams from newProfileParams
-		// 2.6	update newProfileParams
-		// 2.7	add diffProfileParams
+		else
+		{
+			$objectParams = get_object_vars($this);
+			$coreParams = array();
+			$prevProfileParams = array();
+			$currProfileParams = array();
+			$newProfileParams = array();
+
+			//$prevousObj =
+			// 2.1	get CoreParams
+			// 2.2	get prevProfileParams
+			// 2.3	get currProfileParams
+			// 2.4	get newProfileParams
+			// 2.5	exclude newProfileParams from currProfileParams
+			// 2.6	update CoreParams
+			// 2.7	update currProfileParams
+			// 2.8	add newProfileParams
+		}
+
+
 			
 	}
+
+	public function getProfile()
+	{
+		if ($this->_id > 0)
+		{
+			return new self($this->_id);
+		}
+	}
+
 }

@@ -36,14 +36,11 @@ class Model_User extends Lv_Util_OneObject
 		return $result[0][userId];
 	}
 
-	public static function GetUserProfile($userId)
+	public function getProfile()
 	{
-		if ($userId > 0)
+		if ($this->_id > 0)
 		{
-			$result = Model_Util_SpCaller::call(array('userId'	=> $userId,
-										  		  	  'SP'		=> 'getUserProfile'));
-
-			return new Model_Db_User($result);
+			return new self($this->_id);
 		}
 	}
 
@@ -58,29 +55,26 @@ class Model_User extends Lv_Util_OneObject
 
 	public function editUser($userProfile)
 	{
-		$result = Model_Util_SpCaller::call(array('userId' 	 	 => $userProfile[userId],
-												  'userPassword' => $userProfile[userPassword],
-		  										  'userActivity' => $userProfile[userActivity],
-		  										  'userType' 	 => $userProfile[userType],
-												  'SP'			 => 'editUser'));
+
 	}
 
 	public function addUserProfileItem($parameters)
 	{
+		if(isset($parameters[Sp]))
+		$dbParams[Sp] = $parameters[Sp];
+		else
 		$dbParams[Sp] = $this->getSpName();
+		
 		$dbParams[_id] = $parameters[_id];
 		$dbParams[key] = $parameters[key];
 		$dbParams[value] = $parameters[value];
 		$this->_dbc->call($dbParams);
-		//print_r($dbParams); 
 	}
 
-	public function editProfileItem($userProfileItem)
+	public function editUserProfileItem($parameters)
 	{
-		$result = Model_Util_SpCaller::call(array('userId' 	 	 => $userProfileItem[userId],
-												  'key' 		 => $userProfileItem[key],
-		  										  'value' 		 => $userProfileItem[value],
-												  'SP'			 => 'editProfileItem'));
+		$parameters[Sp] = $this->getSpName();
+		$this->addUserProfileItem($parameters);
 	}
 
 	public function getUserRoles($userId)
@@ -90,14 +84,6 @@ class Model_User extends Lv_Util_OneObject
 		return $result;
 	}
 
-	public function __get($name)
-	{
-		return $this->$name;
-	}
 
-	public function __set($name, $value)
-	{
-		$this->$name = $value;
-	}
 }
 ?>
